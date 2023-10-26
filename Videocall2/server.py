@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import cv2,struct,pickle
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,11 +14,19 @@ clients={}
 
 def handle_client(client_socket):
     while True:
-        print(1)
-        # recipient_socket = clients[usr]
-        message='HI'
-        client_socket.send(message.encode('utf-8'))
-        time.sleep(1)
+        
+        if client_socket:
+            cap = cv2.VideoCapture(cv2.CAP_DSHOW)
+            while(cap.isOpened()):
+                img,frame = cap.read()
+                a = pickle.dumps(frame)
+                message = struct.pack("Q",len(a))+a
+                client_socket.sendall(message)
+                cv2.imshow('Video from Server',frame)
+                
+                key = cv2.waitKey(1) & 0xFF
+                if key ==ord('q'):
+                    client_socket.close()
     client_socket.close()
 
 while True:
