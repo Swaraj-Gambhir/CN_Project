@@ -6,27 +6,45 @@ import cv2,struct,pickle
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 IP=socket.gethostbyname(socket.gethostname())
-server_address = (IP, 12345)
+server_address = ('', 12345)
 server_socket.bind(server_address)
 server_socket.listen(5)
 print("Server is listening for incoming connections...")
 clients={}
+def first_func(sender_socket):
+    username = sender_socket.recv(1024).decode('utf-8')
+    matchmaking(sender_socket,username)
+def matchmaking(sender_socket,username):
+    
+    if username in clients:
 
-def handle_client(client_socket):
+        reciever_socket=clients[username]
+        handle_client(sender_socket,reciever_socket)
+    else:
+        time.sleep(1)
+        matchmaking(sender_socket,username)
+
+
+
+
+def handle_client(sender_socket,reciever_socket):
+    
+
     while True:
+        try:
+
+
+            packet = sender_socket.recv(4096)
+            reciever_socket.sendall(packet)
+                    
+
+        except:
+            print("Error in recieving")
+            break
+
         
-        if client_socket:
-            cap = cv2.VideoCapture(cv2.CAP_DSHOW)
-            while(cap.isOpened()):
-                img,frame = cap.read()
-                a = pickle.dumps(frame)
-                message = struct.pack("Q",len(a))+a
-                client_socket.sendall(message)
-                cv2.imshow('Video from Server',frame)
                 
-                key = cv2.waitKey(1) & 0xFF
-                if key ==ord('q'):
-                    client_socket.close()
+              
     client_socket.close()
 
 while True:
@@ -39,5 +57,5 @@ while True:
     clients[username] = client_socket
 
     # Create a thread to handle the client
-    client_thread = threading.Thread(target=handle_client, args=(client_socket,))
+    client_thread = threading.Thread(target=first_func, args=(client_socket,))
     client_thread.start()
