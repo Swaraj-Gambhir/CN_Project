@@ -26,15 +26,15 @@ def broadcast():
             broadcast_clients[client].send(ans.encode('utf-8'))
 
 def first_func(sender_socket):
-    username = sender_socket.recv(1024).decode('utf-8')
-    matchmaking(sender_socket,username)
-def matchmaking(sender_socket,username):   
-    if username in clients_vc:
-        reciever_socket=clients_vc[username]
+    username2 = sender_socket.recv(1024).decode('utf-8')
+    matchmaking(sender_socket,username2)
+def matchmaking(sender_socket,username2):   
+    if username2 in clients_vc:
+        reciever_socket=clients_vc[username2]
         handle_client_vc(sender_socket,reciever_socket)
     else:
         time.sleep(1)
-        matchmaking(sender_socket,username)
+        matchmaking(sender_socket,username2)
 
 all_msg=[]
 def handle_client_msg(client_socket):
@@ -48,9 +48,9 @@ def handle_client_msg(client_socket):
                 break
 
             # Split the message into recipient and message content
-            recipient,message = data.split(":", 1)
+            usern,recipient,message = data.split(":", 2)
             print("Message Recieved")
-
+            message=f"{usern}:{message}"
             # Find the recipient client socket and send the message
             if recipient=='all':
                 for client in clients_msg:

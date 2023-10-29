@@ -24,7 +24,7 @@ def switch(a):
         send_vc_thread.start() 
     if(a==1):
         client_socket_msg.connect(server_address)
-        user3='v'+user
+        user3='m'+user
         client_socket_msg.send(user3.encode('utf-8'))
         send_msg_thread.start()
         receive_msg_thread.start()
@@ -97,6 +97,7 @@ def receive_messages():
         try:
             # Receive and print messages from the server
             message = client_socket_msg.recv(1024).decode('utf-8')
+            usern,message = message.split(":", 1)
             print("You got a message")
             print("Message is",message)
             
@@ -110,7 +111,7 @@ def send_messages():
         recipient = input()
         print("Enter the message")
         messag=input()
-        formatted_message=f"{recipient}:{messag}"
+        formatted_message=f"{user}:{recipient}:{messag}"
         client_socket_msg.send(formatted_message.encode('utf-8'))
 message = "Enter your username"
 print(message)
@@ -127,7 +128,7 @@ send_vc_thread= threading.Thread(target=send_frames)
 receive_msg_thread = threading.Thread(target=receive_messages)
 send_msg_thread=threading.Thread(target=send_messages)
 
-
-
 # cd Documents/Project/Videocall2
+
+# 
  
